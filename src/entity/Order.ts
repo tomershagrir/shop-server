@@ -1,21 +1,22 @@
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { ObjectType, Field, ID, Float } from "type-graphql";
 
-// src/entity/Order.ts
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from "typeorm";
-
+@ObjectType()
 @Entity()
 export class Order {
+    @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field()
     @Column()
     customerEmail: string;
 
-    @Column("decimal", { precision: 10, scale: 2 })
+    @Field(() => Float)
+    @Column("float")
     total: number;
 
+    @Field()
     @Column()
     status: string;
-
-    @CreateDateColumn()
-    createdAt: Date;
 }

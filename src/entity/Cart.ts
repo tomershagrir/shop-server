@@ -1,22 +1,19 @@
-
-// src/entity/Cart.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { ObjectType, Field, ID, Int } from "type-graphql";
 import { Product } from "./Product";
 
+@ObjectType()
 @Entity()
 export class CartItem {
+    @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Product)
+    @Field(() => Product)
+    @ManyToOne(() => Product, { eager: true })
     product: Product;
 
+    @Field(() => Int)
     @Column()
     quantity: number;
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }
