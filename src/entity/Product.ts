@@ -18,9 +18,6 @@ export class Product {
     @Column()
     imageUrl: string;
 
-    @Column()
-    stock: number;
-
     @CreateDateColumn()
     createdAt: Date;
 
