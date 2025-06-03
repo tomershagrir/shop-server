@@ -63,7 +63,7 @@ export class CartService {
 
     async updateCartItem(userId: string, itemId: number, quantity: number) {
         const cartItem = await this.cartRepository.findOne({
-            where: { id: itemId, userId },
+            where: { id: itemId },
         });
 
         if (!cartItem) {

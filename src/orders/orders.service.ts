@@ -33,7 +33,7 @@ export class OrdersService {
 
     async getOrders(userId: string): Promise<Order[]> {
         return this.orderRepository.find({
-            where: { userId },
+           // where: { userId },
             order: { createdAt: 'DESC' },
         });
     }
