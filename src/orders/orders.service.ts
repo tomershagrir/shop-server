@@ -1,40 +1,43 @@
 
 // src/orders/orders.service.ts
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CartService } from '../cart/cart.service';
 import { RedisService } from '../redis/redis.service';
-import {Order} from "../entity/Order";
+import { Order, OrderDocument } from "../entity/Order";
 
 @Injectable()
 export class OrdersService {
     constructor(
-        @InjectRepository(Order)
-        private readonly orderRepository: Repository<Order>,
+        @InjectModel(Order.name)
+        private readonly orderModel: Model<OrderDocument>,
         private readonly cartService: CartService,
         private readonly redisService: RedisService,
     ) {}
 
     async createOrder(userId: string): Promise<Order> {
         const cart = await this.cartService.getCart(userId);
-        const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+        const total = cart.reduce((sum, item) => {
+            const product = item.product as any; // Type assertion for populated product
+            return sum + product.price * item.quantity;
+        }, 0);
 
-        const order = this.orderRepository.create({
+        const order = new this.orderModel({
+            customerEmail: userId, // Using userId as email for now
             total,
             status: 'pending',
         });
 
-        await this.orderRepository.save(order);
+        await order.save();
         await this.redisService.getClient().del(`cart:${userId}`);
 
         return order;
     }
 
     async getOrders(userId: string): Promise<Order[]> {
-        return this.orderRepository.find({
-           // where: { userId },
-            order: { createdAt: 'DESC' },
-        });
+        return this.orderModel.find({
+            customerEmail: userId,
+        }).sort({ createdAt: -1 }).exec();
     }
 }

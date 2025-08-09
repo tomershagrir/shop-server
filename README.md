@@ -1,6 +1,6 @@
 # Shop Server
 
-A simple shop API built with NestJS, TypeORM, PostgreSQL, and Redis.
+A simple shop API built with NestJS, Mongoose, MongoDB, and Redis.
 
 ## Features
 
@@ -13,13 +13,13 @@ A simple shop API built with NestJS, TypeORM, PostgreSQL, and Redis.
 ## Prerequisites
 
 - Node.js 14 or higher
-- PostgreSQL
+- MongoDB
 - Redis
 - Docker and Docker Compose (for containerized setup)
 
 ## Running with Docker
 
-The application can be run using Docker and Docker Compose, which will set up the application, PostgreSQL, and Redis in containers.
+The application can be run using Docker and Docker Compose, which will set up the application, MongoDB, and Redis in containers.
 
 ### Build and start the containers
 
@@ -29,7 +29,7 @@ docker-compose up -d
 
 This will start the following services:
 - The shop API on port 3001
-- PostgreSQL on port 5432
+- MongoDB on port 27017
 - Redis on port 6379
 
 ### Stop the containers
@@ -70,6 +70,28 @@ Production mode:
 ```bash
 npm run build
 npm start
+```
+
+## Database Management
+
+### Seed the database with sample products
+
+```bash
+npm run seed
+```
+
+This will add 15 sample products with random online images from Unsplash.
+
+### List all products in the database
+
+```bash
+npm run list
+```
+
+### Clear all products from the database
+
+```bash
+npm run clear
 ```
 
 ## API Documentation

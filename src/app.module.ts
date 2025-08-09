@@ -1,7 +1,7 @@
 
 // src/app.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { RedisModule } from './redis/redis.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
@@ -11,16 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            host: process.env.DB_HOST,
-            port: Number(process.env.DB_PORT),
-            username: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_DATABASE,
-            autoLoadEntities: true,
-            synchronize: true,
-        }),
+        MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/shop_db'),
         RedisModule,
         ProductsModule,
         CartModule,

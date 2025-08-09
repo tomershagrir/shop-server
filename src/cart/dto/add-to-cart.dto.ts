@@ -1,9 +1,9 @@
 // src/cart/dto/add-to-cart.dto.ts
-import { IsNumber, IsPositive, IsString } from 'class-validator';
+import { IsString, IsPositive, IsNumber } from 'class-validator';
 
 export class AddToCartDto {
-    @IsNumber()
-    productId: number;
+    @IsString()
+    productId: string;
 
     @IsNumber()
     @IsPositive()

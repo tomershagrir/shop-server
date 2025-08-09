@@ -1,17 +1,17 @@
 
 // src/products/products.service.ts
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { RedisService } from '../redis/redis.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import {Product} from "../entity/Product";
+import { Product, ProductDocument } from "../entity/Product";
 
 @Injectable()
 export class ProductsService {
     constructor(
-        @InjectRepository(Product)
-        private readonly productRepository: Repository<Product>,
+        @InjectModel(Product.name)
+        private readonly productModel: Model<ProductDocument>,
         private readonly redisService: RedisService,
     ) {}
 
@@ -24,7 +24,7 @@ export class ProductsService {
             return JSON.parse(cachedProducts);
         }
 
-        const products = await this.productRepository.find();
+        const products = await this.productModel.find().exec();
         await this.redisService
             .getClient()
             .setex('products:all', 3600, JSON.stringify(products));
@@ -32,7 +32,7 @@ export class ProductsService {
         return products;
     }
 
-    async findOne(id: number): Promise<Product> {
+    async findOne(id: string): Promise<Product> {
         const cachedProduct = await this.redisService
             .getClient()
             .get(`product:${id}`);
@@ -41,7 +41,7 @@ export class ProductsService {
             return JSON.parse(cachedProduct);
         }
 
-        const product = await this.productRepository.findOne({ where: { id } });
+        const product = await this.productModel.findById(id).exec();
         if (product) {
             await this.redisService
                 .getClient()
@@ -52,8 +52,8 @@ export class ProductsService {
     }
 
     async create(createProductDto: CreateProductDto): Promise<Product> {
-        const product = this.productRepository.create(createProductDto);
-        await this.productRepository.save(product);
+        const product = new this.productModel(createProductDto);
+        await product.save();
 
         await this.redisService
             .getClient()

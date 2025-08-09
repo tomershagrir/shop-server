@@ -1,22 +1,20 @@
 
 // src/entity/Cart.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { Product } from "./Product";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-@Entity()
+export type CartItemDocument = CartItem & Document;
+
+@Schema({ timestamps: true })
 export class CartItem {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @Prop({ required: true })
+    userId: string;
 
-    @ManyToOne(() => Product)
-    product: Product;
+    @Prop({ type: Types.ObjectId, ref: 'Product', required: true })
+    product: Types.ObjectId;
 
-    @Column()
+    @Prop({ required: true, type: Number })
     quantity: number;
-
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }
+
+export const CartItemSchema = SchemaFactory.createForClass(CartItem);

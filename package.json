@@ -1,11 +1,14 @@
 {
   "name": "shop-api",
   "version": "1.0.0",
-  "description": "Simple shop API with TypeORM, Express, and PostgreSQL",
+  "description": "Simple shop API with Mongoose, Express, and MongoDB",
   "scripts": {
     "start": "ts-node --experimental-specifier-resolution=node src/main.ts",
     "build": "tsc",
-    "dev": "ts-node-dev src/main.ts"
+    "dev": "ts-node-dev src/main.ts",
+    "seed": "ts-node --experimental-specifier-resolution=node src/seed-products.ts",
+    "list": "ts-node --experimental-specifier-resolution=node src/list-products.ts",
+    "clear": "ts-node --experimental-specifier-resolution=node src/clear-products.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
@@ -14,17 +17,16 @@
     "@nestjs/mapped-types": "^2.0.6",
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
-    "@nestjs/typeorm": "^10.0.2",
+    "@nestjs/mongoose": "^10.0.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "ioredis": "^5.0.4",
-    "pg": "^8.13.1",
+    "mongoose": "^8.0.3",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.24"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
