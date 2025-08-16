@@ -1,16 +1,16 @@
 // src/cart/cart.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { RedisService } from '../redis/redis.service';
 import { ProductsService } from '../products/products.service';
-import { CartItem, CartItemDocument } from "../entity/Cart";
+import {CartItem} from "../entity/Cart";
 
 @Injectable()
 export class CartService {
     constructor(
-        @InjectModel(CartItem.name)
-        private readonly cartModel: Model<CartItemDocument>,
+        @InjectRepository(CartItem)
+        private readonly cartRepository: Repository<CartItem>,
         private readonly redisService: RedisService,
         private readonly productsService: ProductsService,
     ) {}
@@ -24,7 +24,9 @@ export class CartService {
             return JSON.parse(cachedCart);
         }
 
-        const cart = await this.cartModel.find({ userId }).populate('product').exec();
+        const cart = await this.cartRepository.find({
+            relations: ['product'],
+        });
 
         await this.redisService
             .getClient()
@@ -33,61 +35,60 @@ export class CartService {
         return cart;
     }
 
-    async addToCart(userId: string, productId: string, quantity: number) {
+    async addToCart(userId: string, productId: number, quantity: number) {
         const product = await this.productsService.findOne(productId);
         if (!product) {
             throw new NotFoundException('Product not found');
         }
 
-        // Check if item already exists in cart for this user
-        let cartItem = await this.cartModel.findOne({
-            userId,
-            product: productId,
-        }).exec();
+        // Check if item already exists in cart
+        let cartItem = await this.cartRepository.findOne({
+            where: { product: { id: productId } },
+        });
 
         if (cartItem) {
             cartItem.quantity += quantity;
         } else {
-            cartItem = new this.cartModel({
-                userId,
-                product: productId,
+            cartItem = this.cartRepository.create({
+                product,
                 quantity,
             });
         }
 
-        await cartItem.save();
+        await this.cartRepository.save(cartItem);
         await this.redisService.getClient().del(`cart:${userId}`);
 
         return this.getCart(userId);
     }
 
-    async updateCartItem(userId: string, itemId: string, quantity: number) {
-        const cartItem = await this.cartModel.findOne({ _id: itemId, userId }).exec();
+    async updateCartItem(userId: string, itemId: number, quantity: number) {
+        const cartItem = await this.cartRepository.findOne({
+            where: { id: itemId },
+        });
 
         if (!cartItem) {
             throw new NotFoundException('Cart item not found');
         }
 
         cartItem.quantity = quantity;
-        await cartItem.save();
+        await this.cartRepository.save(cartItem);
         await this.redisService.getClient().del(`cart:${userId}`);
 
         return this.getCart(userId);
     }
 
-    async removeCartItem(userId: string, itemId: string) {
-        const cartItem = await this.cartModel.findOne({ _id: itemId, userId }).exec();
+    async removeCartItem(userId: string, itemId: number) {
+        const cartItem = await this.cartRepository.findOne({ where: { product: { id: itemId } } });
 
-        if (cartItem) {
-            await this.cartModel.findByIdAndDelete(itemId).exec();
-        }
+        // Delete the cart item from the database
+        await this.cartRepository.remove(cartItem);
 
         await this.redisService.getClient().del(`cart:${userId}`);
         return this.getCart(userId);
     }
 
     async clearCart(userId: string) {
-        await this.cartModel.deleteMany({ userId }).exec();
+        await this.cartRepository.delete({ });
         await this.redisService.getClient().del(`cart:${userId}`);
         return [];
     }
@@ -97,7 +98,7 @@ export class CartService {
     //     const cart = await this.getCart(userId);
     //
     //     for (const item of cart) {
-    //         const product = await this.productsService.findOne(item.product._id);
+    //         const product = await this.productsService.findOne(item.product.id);
     //         if (!product || product.stock < item.quantity) {
     //             return false;
     //         }

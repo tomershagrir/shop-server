@@ -50,7 +50,7 @@ export class CartController {
     @Put(':userId/items/:itemId')
     async updateCartItem(
         @Param('userId') userId: string,
-        @Param('itemId') itemId: string,
+        @Param('itemId') itemId: number,
         @Body() updateCartItemDto: UpdateCartItemDto,
     ) {
         try {
@@ -70,7 +70,7 @@ export class CartController {
     @Delete(':userId/items/:itemId')
     async removeCartItem(
         @Param('userId') userId: string,
-        @Param('itemId') itemId: string,
+        @Param('itemId') itemId: number,
     ) {
         try {
             return await this.cartService.removeCartItem(userId, itemId);

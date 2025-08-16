@@ -1,20 +1,21 @@
 
 // src/entity/Order.ts
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from "typeorm";
 
-export type OrderDocument = Order & Document;
-
-@Schema({ timestamps: true })
+@Entity()
 export class Order {
-    @Prop({ required: true })
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
     customerEmail: string;
 
-    @Prop({ required: true, type: Number })
+    @Column("decimal", { precision: 10, scale: 2 })
     total: number;
 
-    @Prop({ required: true })
+    @Column()
     status: string;
-}
 
-export const OrderSchema = SchemaFactory.createForClass(Order);
+    @CreateDateColumn()
+    createdAt: Date;
+}

@@ -1,25 +1,26 @@
 // src/entity/Product.ts
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
 
-export type ProductDocument = Product & Document;
-
-@Schema({ timestamps: true })
+@Entity()
 export class Product {
-    @Prop({ required: true })
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
     name: string;
 
-    @Prop({ required: true })
+    @Column()
     description: string;
 
-    @Prop({ required: true, type: Number })
+    @Column("decimal", { precision: 10, scale: 2 })
     price: number;
 
-    @Prop({ required: true, type: Number })
-    stock: number;
-
-    @Prop({ required: true })
+    @Column()
     imageUrl: string;
-}
 
-export const ProductSchema = SchemaFactory.createForClass(Product);
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+}

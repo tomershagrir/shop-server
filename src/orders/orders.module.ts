@@ -1,15 +1,15 @@
 // src/orders/orders.module.ts
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { CartModule } from '../cart/cart.module';
-import { Order, OrderSchema } from "../entity/Order";
-import { RedisService } from "../redis/redis.service";
+import {Order} from "../entity/Order";
+import {RedisService} from "../redis/redis.service";
 
 @Module({
     imports: [
-        MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
+        TypeOrmModule.forFeature([Order]),
         CartModule,
     ],
     controllers: [OrdersController],
